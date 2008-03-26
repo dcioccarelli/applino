@@ -1,0 +1,113 @@
+<!--
+	Build file for external (3rd party) Applini. These are basically the examples
+	which are included in the demo/jfc directory in the JDK. "Adapter" classes have
+	been provided to make these applications work as applini (basically to linking the
+	constructor and destructor methods of the Applino lifecycle). 
+-->
+
+<project name="3rd Party Applino Applications" default="jar" basedir=".">
+
+<!-- :::::::::::::: Configurable Properties :::::::::::::::::::: -->
+
+<!-- Dealer of app server JARs (servlet.jar, etc.) -->
+<property name="outputJar" value="3rdparty.jar"/>
+<property name="libDir" value="../lib"/>
+<property name="3rdPartyLibDir" value="../3rdparty/lib"/>
+<property name="appliniDir" value="../applini"/>
+<property name="sourceDir" value="../3rdparty/src"/>
+<property name="classDir" value="../classes"/>
+
+<!-- :::::::::::::::::::::::: classpath ::::::::::::::::::::::: -->
+
+   <path id="classDirpath">
+      <fileset dir="${libDir}">
+         <patternset>
+            <include name="**/*.jar"/>
+            <exclude name="${outputJar}"/>
+         </patternset>
+      </fileset>
+      <fileset dir="${3rdPartyLibDir}">
+        <patternset>
+          <include name="**/*.jar"/>
+          <exclude name="${outputJar}"/>
+        </patternset>
+      </fileset>
+   </path>
+
+   <property name="classDirpath" refid="classDirpath"/>
+
+<!-- :::::::::::::::::::::::: targets ::::::::::::::::::::::: -->
+
+<target name="classpathInfo" description="Display current application classpath">
+   <echo>
+   ----------------------------
+   ${classDirpath}
+   ----------------------------
+   </echo>
+</target>
+
+<target name="copyResources" description="Copies resources files to classDir">
+   <copy todir="${classDir}" >
+      <fileset dir="${sourceDir}" >
+         <include name="**/*.properties"/>
+         <include name="**/*.gif"/>
+         <include name="**/*.jpg"/>
+         <include name="**/*.png"/>
+         <include name="**/*.js"/>
+         <include name="**/*.xml"/>
+      </fileset>
+   </copy>
+</target>
+
+<target name="compile" depends="copyResources" description="Compile core classes">
+   <javac srcdir="${sourceDir}"
+          destdir="${classDir}"
+          debug="on"
+          deprecation="off"
+          optimize="on"
+          target="1.5"
+          source="1.5">
+      <classpath refid="classDirpath"/>
+   </javac>
+</target>
+
+<target name="jar" depends="clean,compile" description="Create a .jar file from core classes">
+   <delete file="${libDir}/${outputJar}" verbose="true"/>
+   <jar destfile="${libDir}/${outputJar}"
+        basedir="${classDir}"/>
+</target>
+
+<target name="clean" description="Delete built files">
+   <delete includeEmptyDirs="true" failonerror="false">
+       <fileset dir="${classDir}" includes="**/*"/>
+   </delete>
+</target>
+
+<target name="packageExamples" depends="jar" description="Package example applini">
+    <copy file="${libDir}/${outputJar}" toDir="${appliniDir}/PasswordStore/WEB-INF/lib"/>
+    <delete file="${appliniDir}/PasswordStore.aar"/>
+    <zip destfile="${appliniDir}/PasswordStore.aar"
+         basedir="${appliniDir}/PasswordStore"/>
+    <copy file="${libDir}/${outputJar}" toDir="${appliniDir}/SwingSet2/WEB-INF/lib"/>
+    <delete file="${appliniDir}/SwingSet2.aar"/>
+    <zip destfile="${appliniDir}/SwingSet2.aar"
+         basedir="${appliniDir}/SwingSet2"/>
+    <copy file="${libDir}/${outputJar}" toDir="${appliniDir}/Notepad/WEB-INF/lib"/>
+    <delete file="${appliniDir}/Notepad.aar"/>
+    <zip destfile="${appliniDir}/Notepad.aar"
+         basedir="${appliniDir}/Notepad"/>
+    <copy file="${libDir}/${outputJar}" toDir="${appliniDir}/Stylepad/WEB-INF/lib"/>
+    <delete file="${appliniDir}/Stylepad.aar"/>
+    <zip destfile="${appliniDir}/Stylepad.aar"
+         basedir="${appliniDir}/Stylepad"/>
+    <copy file="${libDir}/${outputJar}" toDir="${appliniDir}/Java2D/WEB-INF/lib"/>
+    <delete file="${appliniDir}/Java2D.aar"/>
+    <zip destfile="${appliniDir}/Java2D.aar"
+         basedir="${appliniDir}/Java2D"/>
+    <copy file="${libDir}/${outputJar}" toDir="${appliniDir}/FontTest/WEB-INF/lib"/>
+    <delete file="${appliniDir}/FontTest.aar"/>
+    <zip destfile="${appliniDir}/FontTest.aar"
+         basedir="${appliniDir}/FontTest"/>
+</target>
+
+</project>
