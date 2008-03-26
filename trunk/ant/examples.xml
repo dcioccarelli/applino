@@ -1,0 +1,86 @@
+<project name="Example Applino Applications" default="jar" basedir=".">
+
+<!-- :::::::::::::: Configurable Properties :::::::::::::::::::: -->
+
+<!-- Dealer of app server JARs (servlet.jar, etc.) -->
+<property name="outputJar" value="examples.jar"/>
+<property name="libDir" value="../lib"/>
+<property name="appliniDir" value="../applini"/>
+<property name="sourceDir" value="../examples"/>
+<property name="classDir" value="../classes"/>
+
+<!-- :::::::::::::::::::::::: preferences paths ::::::::::::::::::::::: -->
+
+<path id="classDirpath">
+  <fileset dir="${libDir}">
+     <patternset>
+        <include name="**/*.jar"/>
+        <exclude name="${outputJar}"/>
+     </patternset>
+  </fileset>
+</path>
+
+<property name="classDirpath" refid="classDirpath"/>
+
+<!-- :::::::::::::::::::::::: targets ::::::::::::::::::::::: -->
+
+<target name="classpathInfo" description="Display current application classpath">
+   <echo>
+   ----------------------------
+   ${classDirpath}
+   ----------------------------
+   </echo>
+</target>
+
+<target name="copyResources" description="Copies resources files to classDir">
+   <copy todir="${classDir}" >
+      <fileset dir="${sourceDir}" >
+         <include name="**/*.properties"/>
+         <include name="**/*.gif"/>
+         <include name="**/*.js"/>
+         <include name="**/*.xml"/>
+      </fileset>
+   </copy>
+</target>
+
+
+<target name="compile" depends="copyResources" description="Compile core classes">
+   <javac srcdir="${sourceDir}"
+          destdir="${classDir}"
+          debug="on"
+          deprecation="off"
+          optimize="on"
+          target="1.5"
+          source="1.5">
+      <classpath refid="classDirpath"/>
+   </javac>
+</target>
+
+<target name="jar" depends="clean,compile" description="Create a .jar file from core classes">
+   <delete file="${libDir}/${outputJar}" verbose="true"/>
+   <jar destfile="${libDir}/${outputJar}"
+        basedir="${classDir}"/>
+</target>
+
+<target name="clean" description="Delete built files">
+   <delete includeEmptyDirs="true" failonerror="false">
+       <fileset dir="${classDir}" includes="**/*"/>
+   </delete>
+</target>
+
+<target name="packageExamples" description="Package example applini">
+    <copy file="${libDir}/${outputJar}" toDir="${appliniDir}/Calculator/WEB-INF/lib"/>
+    <delete file="${appliniDir}/Calculator.aar"/>
+    <zip destfile="${appliniDir}/Calculator.aar"
+         basedir="${appliniDir}/Calculator"/>
+    <copy file="${libDir}/${outputJar}" toDir="${appliniDir}/SimpleApplino/WEB-INF/lib"/>
+    <delete file="${appliniDir}/SimpleApplino.aar"/>
+    <zip destfile="${appliniDir}/SimpleApplino.aar"
+         basedir="${appliniDir}/SimpleApplino"/>
+    <copy file="${libDir}/${outputJar}" toDir="${appliniDir}/SimpleText/WEB-INF/lib"/>
+    <delete file="${appliniDir}/SimpleText.aar"/>
+    <zip destfile="${appliniDir}/SimpleText.aar"
+         basedir="${appliniDir}/SimpleText"/>
+</target>
+
+</project>
