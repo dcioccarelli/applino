@@ -1,10 +1,16 @@
 package com.applino;
 
-import java.util.*;
 import org.mortbay.jetty.webapp.WebAppContext;
 
 import java.awt.*;
 
+/**
+ * An ApplinoContext is simply an extension of a Jetty WebAppContext which also
+ * deals with updating the task tray icon when Applini are started and stopped.
+ * In addition it frees any resources associated with an Applino when it is
+ * stopped and creates an ApplinoFrame for the Applino to use for displaying
+ * any graphical output.
+ */
 public class ApplinoContext extends WebAppContext
 {
     private MenuItem menuItem;
@@ -20,6 +26,12 @@ public class ApplinoContext extends WebAppContext
         return menuItem;
     }
 
+    /**
+     * The ApplinoContext needs to have access to the corresponding MenuItem
+     * so that it can change the displayed status whenever the applino is started
+     * or stopped.
+     * @param menuItem The menu item corresponding to this Applino context.
+     */
     public void setMenuItem(MenuItem menuItem)
     {
         this.menuItem = menuItem;
@@ -63,9 +75,10 @@ public class ApplinoContext extends WebAppContext
             System.out.println("Stopping: " + name + "...");
             if (menuItem != null)
                 menuItem.setLabel("Start " + name);
-            this.frame.setVisible(false);
-            this.removeAttribute("frame");
-            this.frame = null;
+            frame.setVisible(false);
+            removeAttribute("frame");
+            frame.setContext(null);
+            frame = null;
             super.stop();
             System.gc();
             System.out.println("Stopped: " + name);
@@ -74,10 +87,5 @@ public class ApplinoContext extends WebAppContext
         {
             ex.printStackTrace();
         }
-    }
-
-    public String getMessage()
-    {
-        return "Today is sunny!";
     }
 }
